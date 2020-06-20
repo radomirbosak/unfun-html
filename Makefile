@@ -1,3 +1,5 @@
+default: test
+
 clean:
 	rm -rf unfun_html/__pycache__ tests/__pycache__ dist/ unfun_html.egg-info/ build/
 

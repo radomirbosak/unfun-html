@@ -16,9 +16,3 @@ test:
 	autopep8 --max-line-length 99  --diff -r unfun_html/ tests/ | colordiff
 	flake8 --builtins="_" --max-line-length 99 unfun_html/ tests/
 	pylint unfun_html/ tests/*.py  --good-names 'f,i'
-
-# completions-install-bash:
-# 	cp completions/unfun_html /etc/bash_completion.d/ || echo "You may need to use sudo to copy to /etc/bash_completion.d"
-
-# completions-install-fish:
-# 	cp completions/unfun_html.fish ~/.config/fish/completions/

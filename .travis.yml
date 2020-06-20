@@ -13,7 +13,7 @@ addons:
     - colordiff
 
 install:
-  - "pip install -r requirements-dev"
+  - "pip install -r requirements-dev.txt"
 
 script:
- - pytest
+ - make test

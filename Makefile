@@ -20,4 +20,6 @@ test:
 	pylint unfun_html/ tests/*.py  --good-names 'f,i'
 
 download-data:
-	mkdir -p data && wget 'https://www.duden.de/rechtschreibung/Petersilie' -O data/Petersilie.html
+	mkdir -p data
+	wget 'https://www.duden.de/rechtschreibung/Petersilie' -O data/Petersilie.html
+	duden Petersilie --export > data/Petersilie.yaml

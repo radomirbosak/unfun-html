@@ -14,10 +14,10 @@ pypi-upload:
 
 test:
 	python --version
-	python -m pytest tests/
+	python -m pytest tests/ -v
 	autopep8 --max-line-length 99  --diff -r unfun_html/ tests/ | colordiff
 	flake8 --builtins="_" --max-line-length 99 unfun_html/ tests/
-	pylint unfun_html/ tests/*.py  --good-names 'f,i'
+	pylint unfun_html/ tests/*.py --good-names 'f,i'
 
 download-data:
 	mkdir -p data

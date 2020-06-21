@@ -5,12 +5,30 @@ Main module
 import argparse
 import sys
 
+import bs4
+import yaml
+
 from .__version__ import __version__
 
 
 def function():
     """Sample function"""
     print('Sample package')
+
+
+def naive_traversal(soup):
+    """Traverse all tags with attributes"""
+    visited = set()
+    for tag in soup.descendants:
+        bad_node_types = [bs4.Doctype, bs4.Comment, bs4.NavigableString]
+        if any(isinstance(tag, bad) for bad in bad_node_types):
+            continue
+        for attr in tag.attrs.keys():
+            node_key = (tag.name, attr)
+            if node_key in visited:
+                continue
+            yield node_key
+            visited.add(node_key)
 
 
 def parse_args():
@@ -24,14 +42,18 @@ def parse_args():
 
 def main():
     """Main entrypoint"""
-    # handle the --version switch
-    if '--version' in sys.argv or 'V' in sys.argv:
-        print('mypackage ' + __version__)
-        sys.exit(0)
+    with open('data/Petersilie.yaml') as _f:
+        word_targets = yaml.load(_f, Loader=yaml.BaseLoader)
 
-    # parse normal arguments
-    parse_args()
+    with open('data/Petersilie.html') as _f:
+        word_soup = bs4.BeautifulSoup(_f, features='html.parser')
 
-    function()
+    kernels = naive_traversal(word_soup)
 
-    sys.exit(0)
+    print(f'Searching for: {word_targets["name"]}')
+    print()
+    print('tag\tattribute')
+    print('===\t=========')
+    for tag, attribute in kernels:
+        # print(f'<{tag} {attribute}="">')
+        print(f"{tag}\t{attribute}")

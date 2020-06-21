@@ -3,12 +3,7 @@
 
 import bs4
 
-from unfun_html.main import function, naive_traversal
-
-
-def test_function():
-    """Test sample function"""
-    function()
+from unfun_html.main import naive_traversal, naive_extract
 
 
 def test_naive_traversal_empty():
@@ -54,3 +49,35 @@ def test_naive_traversal_list_attrs():
     soup = bs4.BeautifulSoup(html, features='html.parser')
     gen = naive_traversal(soup)
     assert list(gen) == [('nav', 'rel')]
+
+
+def test_naive_extract_empty():
+    """Test empty soup finds no entry"""
+    html = ''
+    soup = bs4.BeautifulSoup(html, features='html.parser')
+    value = naive_extract(soup, ('a', 'b'))
+    assert value is None
+
+
+def test_naive_extract_single():
+    """Test single tag/attribute is extracted"""
+    html = 'text<a href="example.com">link</a>end'
+    soup = bs4.BeautifulSoup(html, features='html.parser')
+    value = naive_extract(soup, ('a', 'href'))
+    assert value == 'example.com'
+
+
+def test_naive_extract_no_find_class():
+    """Test single tag/attribute is extracted"""
+    html = '<div class="pretty">content</div>'
+    soup = bs4.BeautifulSoup(html, features='html.parser')
+    value = naive_extract(soup, ('div', 'class'))
+    assert value is None
+
+
+def test_naive_extract_find_first():
+    """Test single tag/attribute is extracted"""
+    html = '<font color="red">a</font>b<font color="green">c</font>'
+    soup = bs4.BeautifulSoup(html, features='html.parser')
+    value = naive_extract(soup, ('font', 'color'))
+    assert value == 'red'

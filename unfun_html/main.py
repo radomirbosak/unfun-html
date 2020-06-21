@@ -2,18 +2,11 @@
 """
 Main module
 """
-import argparse
-import sys
 
 import bs4
+import rich
+from rich.table import Table
 import yaml
-
-from .__version__ import __version__
-
-
-def function():
-    """Sample function"""
-    print('Sample package')
 
 
 def naive_traversal(soup):
@@ -31,13 +24,19 @@ def naive_traversal(soup):
             visited.add(node_key)
 
 
-def parse_args():
-    """Parse CLI arguments"""
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-V', '--version', action='store_true',
-                        help='print program version')
+def naive_extract(soup, node_key):
+    """Evaluate (tag/attr tuples)"""
+    node_name, attr_name = node_key
 
-    return parser.parse_args()
+    def node_conditions(node):
+        avalue = node.attrs.get(attr_name)
+        return node.name == node_name and \
+            attr_name in node.attrs and \
+            not isinstance(avalue, list)
+    node = soup.find(node_conditions)
+    if node is None:
+        return None
+    return node.attrs[attr_name]
 
 
 def main():
@@ -51,9 +50,13 @@ def main():
     kernels = naive_traversal(word_soup)
 
     print(f'Searching for: {word_targets["name"]}')
-    print()
-    print('tag\tattribute')
-    print('===\t=========')
+
+    table = Table()
+    table.add_column('tag')
+    table.add_column('attr', width=16)
+    table.add_column('value', width=32)
     for tag, attribute in kernels:
-        # print(f'<{tag} {attribute}="">')
-        print(f"{tag}\t{attribute}")
+        value = naive_extract(word_soup, (tag, attribute))
+        table.add_row(tag, attribute, value)
+
+    rich.print(table)

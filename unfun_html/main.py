@@ -5,7 +5,6 @@ Main module
 
 import bs4
 import rich
-from rich.table import Table
 import yaml
 
 
@@ -39,6 +38,11 @@ def naive_extract(soup, node_key):
     return node.attrs[attr_name]
 
 
+def find_successful_kernel(soup, generator, extractor, target):
+    """Return kernels which successfully extract the target for a single given soup"""
+    return [kernel for kernel in generator(soup) if extractor(soup, kernel) == target]
+
+
 def main():
     """Main entrypoint"""
     with open('data/Petersilie.yaml') as _f:
@@ -47,16 +51,7 @@ def main():
     with open('data/Petersilie.html') as _f:
         word_soup = bs4.BeautifulSoup(_f, features='html.parser')
 
-    kernels = naive_traversal(word_soup)
-
-    print(f'Searching for: {word_targets["name"]}')
-
-    table = Table()
-    table.add_column('tag')
-    table.add_column('attr', width=16)
-    table.add_column('value', width=32)
-    for tag, attribute in kernels:
-        value = naive_extract(word_soup, (tag, attribute))
-        table.add_row(tag, attribute, value)
-
-    rich.print(table)
+    # test finding successful kernel function
+    winners = find_successful_kernel(word_soup, naive_traversal,
+                                     naive_extract, word_targets["name"])
+    rich.print("Winner kernels for 'name': ", winners)

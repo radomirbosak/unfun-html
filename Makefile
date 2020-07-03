@@ -20,8 +20,5 @@ test:
 	pylint unfun_html/ tests/*.py --good-names 'f,i'
 
 download-data:
-	mkdir -p data
-	wget 'https://www.duden.de/rechtschreibung/Petersilie' -O data/Petersilie.html
-	duden Petersilie --export > data/Petersilie.yaml
-	mkdir -p tests/data
-	cp data/Petersilie.yaml data/Petersilie.html tests/data/
+	./tools/download_word.sh Petersilie
+	./tools/download_word.sh Kragen

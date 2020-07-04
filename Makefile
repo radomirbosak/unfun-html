@@ -1,4 +1,4 @@
-TEST_WORDS = Petersilie Kragen
+TEST_WORDS = Barmherzigkeit Feiertag Kragen laufen Petersilie Qat
 
 default: test check
 

@@ -2,14 +2,13 @@
 """Test word data"""
 # pylint: disable=redefined-outer-name
 
-import os
-
 import bs4
 import pytest
 import yaml
 
 from unfun_html.main import (
-    naive_traversal, naive_extract, find_successful_kernel, find_successful_kernel_for_dataset)
+    naive_traversal, naive_extract, find_successful_kernel, find_successful_kernel_for_dataset,
+    load_data)
 
 
 TEST_DATA_DIR = "tests/data"
@@ -20,24 +19,7 @@ def dataset():
     """
     Download actual words from duden corresponding to test words from `TEST_DATA_DIR`
     """
-    data = []
-    for filename in os.listdir(TEST_DATA_DIR):
-        targets_path = os.path.join(TEST_DATA_DIR, filename)
-
-        # read only yaml files
-        if not filename.endswith('.yaml'):
-            continue
-
-        # store real and expected result
-        with open(targets_path, 'r') as f:
-            target = yaml.load(f, Loader=yaml.SafeLoader)
-
-        soup_path = targets_path[:-4] + 'html'
-        with open(soup_path, 'r') as f:
-            soup = bs4.BeautifulSoup(f, features='html.parser')
-        data.append((soup, target))
-
-    return data
+    return load_data(TEST_DATA_DIR)
 
 
 @pytest.fixture

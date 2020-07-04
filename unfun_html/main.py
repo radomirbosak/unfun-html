@@ -2,10 +2,33 @@
 """
 Main module
 """
+import os
 
 import bs4
 import rich
 import yaml
+
+
+def load_data(data_dir):
+    """Load yaml and html files from given data dir and pair them"""
+    data = []
+    for filename in os.listdir(data_dir):
+        targets_path = os.path.join(data_dir, filename)
+
+        # read only yaml files
+        if not filename.endswith('.yaml'):
+            continue
+
+        # store real and expected result
+        with open(targets_path, 'r') as f:
+            target = yaml.load(f, Loader=yaml.SafeLoader)
+
+        soup_path = targets_path[:-4] + 'html'
+        with open(soup_path, 'r') as f:
+            soup = bs4.BeautifulSoup(f, features='html.parser')
+        data.append((soup, target))
+
+    return data
 
 
 def naive_traversal(soup):
@@ -68,24 +91,18 @@ def find_successful_kernel_for_dataset(dataset, generator, extractor):
 
 def main():
     """Main entrypoint"""
-    with open('data/Petersilie.yaml') as _f:
-        peter_targets = yaml.load(_f, Loader=yaml.BaseLoader)
-
-    with open('data/Petersilie.html') as _f:
-        peter_soup = bs4.BeautifulSoup(_f, features='html.parser')
-
-    with open('data/Kragen.yaml') as _f:
-        kragen_targets = yaml.load(_f, Loader=yaml.BaseLoader)
-
-    with open('data/Kragen.html') as _f:
-        kragen_soup = bs4.BeautifulSoup(_f, features='html.parser')
+    dataset = load_data('data')
 
     # test finding successful kernel function
-    dataset = [
-        (peter_soup, peter_targets['name']),
-        (kragen_soup, kragen_targets['name']),
-    ]
+    name_dataset = [(soup, target['name']) for soup, target in dataset]
     winners = find_successful_kernel_for_dataset(
-        dataset, naive_traversal, naive_extract)
-    rich.print("Dataset: [yellow]Petersilie[/yellow], [yellow]Kragen[/yellow]")
+        name_dataset, naive_traversal, naive_extract)
+    rich.print("Dataset: " + ', '.join(target for _, target in name_dataset))
+
     rich.print("Winner kernels for duden attribute 'name' (tag name, attribute name): ", winners)
+
+    kernel = winners[0]
+    for soup, target in name_dataset:
+        padded = (target + ':').ljust(16)
+        attrval = naive_extract(soup, kernel)
+        rich.print(f'{padded} <{kernel[0]} {kernel[1]}="{attrval}" />')

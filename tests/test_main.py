@@ -125,3 +125,33 @@ def test_naive_set_petersilie_name(petersilie):
 
         # check if the winner really resolves to Petersilie
         assert soup.find(named_tag_has_attr).attrs[attr] == targets['name']
+
+
+@pytest.fixture
+def kragen():
+    """Return Kragen soup and target values"""
+    with open('tests/data/Kragen.yaml') as _f:
+        word_targets = yaml.load(_f, Loader=yaml.BaseLoader)
+
+    with open('tests/data/Kragen.html') as _f:
+        word_soup = bs4.BeautifulSoup(_f, features='html.parser')
+    return word_soup, word_targets
+
+
+def test_naive_set_kragen_name(kragen):
+    """Test finding the word name Kragen with naive generator/extractor"""
+    # pylint: disable=cell-var-from-loop
+    soup, targets = kragen
+    winners = find_successful_kernel(soup, naive_traversal, naive_extract, targets['name'])
+
+    # assert known winner
+    assert winners == [('button', 'data-clipboard-text')]
+
+    # check every winning kernel
+    for tag, attr in winners:
+        # Check if node name is "tag" and has attribute "attr"
+        def named_tag_has_attr(node):
+            return node.name == tag and attr in getattr(node, 'attrs', {})
+
+        # check if the winner really resolves to Kragen
+        assert soup.find(named_tag_has_attr).attrs[attr] == targets['name']

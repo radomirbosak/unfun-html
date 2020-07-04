@@ -69,12 +69,23 @@ def find_successful_kernel_for_dataset(dataset, generator, extractor):
 def main():
     """Main entrypoint"""
     with open('data/Petersilie.yaml') as _f:
-        word_targets = yaml.load(_f, Loader=yaml.BaseLoader)
+        peter_targets = yaml.load(_f, Loader=yaml.BaseLoader)
 
     with open('data/Petersilie.html') as _f:
-        word_soup = bs4.BeautifulSoup(_f, features='html.parser')
+        peter_soup = bs4.BeautifulSoup(_f, features='html.parser')
+
+    with open('data/Kragen.yaml') as _f:
+        kragen_targets = yaml.load(_f, Loader=yaml.BaseLoader)
+
+    with open('data/Kragen.html') as _f:
+        kragen_soup = bs4.BeautifulSoup(_f, features='html.parser')
 
     # test finding successful kernel function
-    winners = find_successful_kernel(word_soup, naive_traversal,
-                                     naive_extract, word_targets["name"])
-    rich.print("Winner kernels for 'name': ", winners)
+    dataset = [
+        (peter_soup, peter_targets['name']),
+        (kragen_soup, kragen_targets['name']),
+    ]
+    winners = find_successful_kernel_for_dataset(
+        dataset, naive_traversal, naive_extract)
+    rich.print("Dataset: [yellow]Petersilie[/yellow], [yellow]Kragen[/yellow]")
+    rich.print("Winner kernels for duden attribute 'name' (tag name, attribute name): ", winners)

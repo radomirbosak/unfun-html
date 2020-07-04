@@ -1,3 +1,5 @@
+TEST_WORDS = Petersilie Kragen
+
 default: test
 
 clean:
@@ -20,5 +22,6 @@ test:
 	pylint unfun_html/ tests/*.py --good-names 'f,i'
 
 download-data:
-	./tools/download_word.sh Petersilie
-	./tools/download_word.sh Kragen
+	for word in ${TEST_WORDS} ; do \
+		./tools/download_word.sh $$word ; \
+	done

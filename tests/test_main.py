@@ -2,12 +2,42 @@
 """Test main module"""
 # pylint: disable=redefined-outer-name
 
+import os
+
 import bs4
 import pytest
 import yaml
 
 from unfun_html.main import (
     naive_traversal, naive_extract, find_successful_kernel, find_successful_kernel_for_dataset)
+
+
+TEST_DATA_DIR = "tests/data"
+
+
+@pytest.fixture(scope="module")
+def dataset():
+    """
+    Download actual words from duden corresponding to test words from `TEST_DATA_DIR`
+    """
+    data = []
+    for filename in os.listdir(TEST_DATA_DIR):
+        targets_path = os.path.join(TEST_DATA_DIR, filename)
+
+        # read only yaml files
+        if not filename.endswith('.yaml'):
+            continue
+
+        # store real and expected result
+        with open(targets_path, 'r') as f:
+            target = yaml.load(f, Loader=yaml.SafeLoader)
+
+        soup_path = targets_path[:-4] + 'html'
+        with open(soup_path, 'r') as f:
+            soup = bs4.BeautifulSoup(f, features='html.parser')
+        data.append((soup, target))
+
+    return data
 
 
 def test_naive_traversal_empty():
@@ -158,13 +188,13 @@ def test_naive_set_kragen_name(kragen):
         assert soup.find(named_tag_has_attr).attrs[attr] == targets['name']
 
 
-def test_finding_winners_for_dataset(petersilie, kragen):
+def test_finding_winners_for_dataset(dataset):
     """Check that both petersilie and kragen dataset winners return the name"""
     # pylint: disable=cell-var-from-loop
-    dataset = [(petersilie[0], petersilie[1]['name']), (kragen[0], kragen[1]['name'])]
-    winners = find_successful_kernel_for_dataset(dataset, naive_traversal, naive_extract)
+    name_dataset = [(soup, target['name']) for soup, target in dataset]
+    winners = find_successful_kernel_for_dataset(name_dataset, naive_traversal, naive_extract)
 
-    for soup, target in [(petersilie[0], 'Petersilie'), (kragen[0], 'Kragen')]:
+    for soup, target in name_dataset:
         for tag, attr in winners:
             # Check if node name is "tag" and has attribute "attr"
             def named_tag_has_attr(node):

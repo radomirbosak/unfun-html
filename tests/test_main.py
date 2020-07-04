@@ -6,7 +6,8 @@ import bs4
 import pytest
 import yaml
 
-from unfun_html.main import naive_traversal, naive_extract, find_successful_kernel
+from unfun_html.main import (
+    naive_traversal, naive_extract, find_successful_kernel, find_successful_kernel_for_dataset)
 
 
 def test_naive_traversal_empty():
@@ -155,3 +156,19 @@ def test_naive_set_kragen_name(kragen):
 
         # check if the winner really resolves to Kragen
         assert soup.find(named_tag_has_attr).attrs[attr] == targets['name']
+
+
+def test_finding_winners_for_dataset(petersilie, kragen):
+    """Check that both petersilie and kragen dataset winners return the name"""
+    # pylint: disable=cell-var-from-loop
+    dataset = [(petersilie[0], petersilie[1]['name']), (kragen[0], kragen[1]['name'])]
+    winners = find_successful_kernel_for_dataset(dataset, naive_traversal, naive_extract)
+
+    for soup, target in [(petersilie[0], 'Petersilie'), (kragen[0], 'Kragen')]:
+        for tag, attr in winners:
+            # Check if node name is "tag" and has attribute "attr"
+            def named_tag_has_attr(node):
+                return node.name == tag and attr in getattr(node, 'attrs', {})
+
+            # check if the winner really resolves to Kragen
+            assert soup.find(named_tag_has_attr).attrs[attr] == target

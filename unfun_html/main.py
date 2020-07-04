@@ -43,6 +43,29 @@ def find_successful_kernel(soup, generator, extractor, target):
     return [kernel for kernel in generator(soup) if extractor(soup, kernel) == target]
 
 
+def find_successful_kernel_for_dataset(dataset, generator, extractor):
+    """
+    Return kernels which successfully extract the target for a single given dataset
+
+    dataset = list of (soup, target) tuples
+    """
+    # populate winner kernels
+    semiwinner_list = []
+    for soup, target in dataset:
+        semi_winners = find_successful_kernel(soup, generator, extractor, target)
+        semiwinner_list.append(semi_winners)
+
+    if not semiwinner_list:
+        return []
+
+    # fetch kernels present in all datapoints
+    winners = []
+    for kernel in semiwinner_list[0]:
+        if all(kernel in semi_winners for semi_winners in semiwinner_list):
+            winners.append(kernel)
+    return winners
+
+
 def main():
     """Main entrypoint"""
     with open('data/Petersilie.yaml') as _f:

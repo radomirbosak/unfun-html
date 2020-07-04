@@ -8,27 +8,29 @@ from unfun_html.main import (
     naive_traversal, naive_extract, find_successful_kernel)
 
 
+def compile_soup(html):
+    """Shorten BeautifulSoup constructor"""
+    return bs4.BeautifulSoup(html, features='html.parser')
+
+
 def test_naive_traversal_empty():
     """Test naive traversal with empty HTML"""
     html = ''
-    soup = bs4.BeautifulSoup(html, features='html.parser')
-    gen = naive_traversal(soup)
+    gen = naive_traversal(compile_soup(html))
     assert list(gen) == []
 
 
 def test_naive_traversal_noattrs():
     """Test naive traversal with single tag without attributes"""
     html = '<b>bold text</b><br />'
-    soup = bs4.BeautifulSoup(html, features='html.parser')
-    gen = naive_traversal(soup)
+    gen = naive_traversal(compile_soup(html))
     assert list(gen) == []
 
 
 def test_naive_traversal_single():
     """Test naive traversal with single tag without attributes"""
     html = '<font color="red">red text</font><br />'
-    soup = bs4.BeautifulSoup(html, features='html.parser')
-    gen = naive_traversal(soup)
+    gen = naive_traversal(compile_soup(html))
     assert list(gen) == [('font', 'color')]
 
 
@@ -40,48 +42,42 @@ def test_naive_traversal_bad_nodes():
     <script type="text/css">
         var i = 1;
     </script>'''
-    soup = bs4.BeautifulSoup(html, features='html.parser')
-    gen = naive_traversal(soup)
+    gen = naive_traversal(compile_soup(html))
     assert list(gen) == [('a', 'href'), ('script', 'type')]
 
 
 def test_naive_traversal_list_attrs():
     """Test if list-type attributes are included"""
     html = '''<nav rel="horse" />'''
-    soup = bs4.BeautifulSoup(html, features='html.parser')
-    gen = naive_traversal(soup)
+    gen = naive_traversal(compile_soup(html))
     assert list(gen) == [('nav', 'rel')]
 
 
 def test_naive_extract_empty():
     """Test empty soup finds no entry"""
     html = ''
-    soup = bs4.BeautifulSoup(html, features='html.parser')
-    value = naive_extract(soup, ('a', 'b'))
+    value = naive_extract(compile_soup(html), ('a', 'b'))
     assert value is None
 
 
 def test_naive_extract_single():
     """Test single tag/attribute is extracted"""
     html = 'text<a href="example.com">link</a>end'
-    soup = bs4.BeautifulSoup(html, features='html.parser')
-    value = naive_extract(soup, ('a', 'href'))
+    value = naive_extract(compile_soup(html), ('a', 'href'))
     assert value == 'example.com'
 
 
 def test_naive_extract_no_find_class():
     """Test single tag/attribute is extracted"""
     html = '<div class="pretty">content</div>'
-    soup = bs4.BeautifulSoup(html, features='html.parser')
-    value = naive_extract(soup, ('div', 'class'))
+    value = naive_extract(compile_soup(html), ('div', 'class'))
     assert value is None
 
 
 def test_naive_extract_find_first():
     """Test single tag/attribute is extracted"""
     html = '<font color="red">a</font>b<font color="green">c</font>'
-    soup = bs4.BeautifulSoup(html, features='html.parser')
-    value = naive_extract(soup, ('font', 'color'))
+    value = naive_extract(compile_soup(html), ('font', 'color'))
     assert value == 'red'
 
 

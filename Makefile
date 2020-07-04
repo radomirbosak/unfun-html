@@ -1,6 +1,6 @@
 TEST_WORDS = Petersilie Kragen
 
-default: test
+default: test check
 
 clean:
 	rm -rf unfun_html/__pycache__ tests/__pycache__ dist/ unfun_html.egg-info/ build/
@@ -14,12 +14,18 @@ pypi-upload-test:
 pypi-upload:
 	python3 -m twine upload dist/*
 
-test:
-	python --version
-	python -m pytest tests/ -v
+check:
 	autopep8 --max-line-length 99  --diff -r unfun_html/ tests/ | colordiff
 	flake8 --builtins="_" --max-line-length 99 unfun_html/ tests/
-	pylint unfun_html/ tests/*.py --good-names 'f,i'
+	pylint unfun_html/ tests/ --good-names 'f,i'
+
+test: test-unit test-word
+
+test-word:
+	python -m pytest tests/word -v
+
+test-unit:
+	python -m pytest tests/unit -v
 
 download-data:
 	for word in ${TEST_WORDS} ; do \

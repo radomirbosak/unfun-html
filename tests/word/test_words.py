@@ -6,9 +6,8 @@ import bs4
 import pytest
 import yaml
 
-from unfun_html.main import (
-    naive_traversal, naive_extract, find_successful_kernel, find_successful_kernel_for_dataset,
-    load_data)
+from unfun_html.gentor import FirstAttributeValueGentor
+from unfun_html.main import load_data
 
 
 TEST_DATA_DIR = "tests/data"
@@ -37,7 +36,8 @@ def test_naive_set_petersilie_name(petersilie):
     """Test finding the word name Petersilie with naive generator/extractor"""
     # pylint: disable=cell-var-from-loop
     soup, targets = petersilie
-    winners = find_successful_kernel(soup, naive_traversal, naive_extract, targets['name'])
+    fav = FirstAttributeValueGentor()
+    winners = list(fav.semiwinners(soup, targets['name']))
 
     # assert known winner
     assert winners == [('button', 'data-clipboard-text')]
@@ -67,7 +67,8 @@ def test_naive_set_kragen_name(kragen):
     """Test finding the word name Kragen with naive generator/extractor"""
     # pylint: disable=cell-var-from-loop
     soup, targets = kragen
-    winners = find_successful_kernel(soup, naive_traversal, naive_extract, targets['name'])
+    fav = FirstAttributeValueGentor()
+    winners = list(fav.semiwinners(soup, targets['name']))
 
     # assert known winner
     assert winners == [('button', 'data-clipboard-text')]
@@ -86,8 +87,8 @@ def test_finding_winners_for_dataset(dataset):
     """Check that both petersilie and kragen dataset winners return the name"""
     # pylint: disable=cell-var-from-loop
     name_dataset = [(soup, target['name']) for soup, target in dataset]
-    winners = find_successful_kernel_for_dataset(name_dataset, naive_traversal, naive_extract)
-
+    fav = FirstAttributeValueGentor()
+    winners = fav.winners(name_dataset)
     for soup, target in name_dataset:
         for tag, attr in winners:
             # Check if node name is "tag" and has attribute "attr"

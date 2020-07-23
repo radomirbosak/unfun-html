@@ -1,6 +1,20 @@
 """
 Gentor which generates only tag attribute values. Ignores multiple-value attributes,
 such as "class"
+
+Currently duden word attributes have these types:
+
+    | -------- | ----------------------------------------------------------------- |
+    | str      | name, urlname, title, article, part_of_speech, origin, usage      |
+    | int      | frequency                                                         |
+    | list     | word_separation, grammar_raw, synonyms, words_before, words_after |
+    | dict     | compounds                                                         |
+    | list/str | meaning_overview                                                  |
+
+From these:
+
+FAV can extract:    name, urlname
+FAV cannot extract: title, article, part_of_speech, origin, usage
 """
 
 import bs4

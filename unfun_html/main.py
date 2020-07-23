@@ -38,13 +38,18 @@ def main():
     dataset = load_data('data')
 
     # test finding successful kernel function
-    name_dataset = [(soup, target['name']) for soup, target in dataset]
+    attrname = 'part_of_speech'
+    name_dataset = [(soup, target[attrname]) for soup, target in dataset]
     fav = FirstAttributeValueGentor()
     winners = fav.winners(name_dataset)
-    rich.print("Dataset: " + ', '.join(target for _, target in name_dataset))
+    rich.print("Dataset: " + ', '.join(str(target) for _, target in name_dataset))
 
-    rich.print("Winner kernels for duden attribute 'name' (tag name, attribute name): ", winners)
+    rich.print(f"Winner kernels for duden attribute '{attrname}' (tag name, attribute name): ", winners)
 
+    if not winners:
+        print('No winners.')
+        return
+    print(f'winners: {winners}')
     kernel = winners[0]
     for soup, target in name_dataset:
         padded = (target + ':').ljust(16)
